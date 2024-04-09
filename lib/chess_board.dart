@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:chess/widgets/box.dart';
 import 'package:chess/widgets/piece.dart';
 import 'package:flutter/material.dart';
@@ -369,9 +371,9 @@ class _ChessBoardState extends State<ChessBoard> {
       Piece piece, int startRow, int startCol, int endRow, int endCol) {
     Piece? curDestination = board[endRow][endCol];
 
-    List<int>? origionalKingPos;
+    List<int>? originalKingPos;
     if (piece.type == PieceType.king) {
-      origionalKingPos = piece.isWhite ? whiteKingPos : blackKingPos;
+      originalKingPos = piece.isWhite ? whiteKingPos : blackKingPos;
 
       if (piece.isWhite) {
         whiteKingPos = [endRow, endCol];
@@ -393,9 +395,9 @@ class _ChessBoardState extends State<ChessBoard> {
     // restore king original pos
     if (piece.type == PieceType.king) {
       if (piece.isWhite) {
-        whiteKingPos = origionalKingPos!;
+        whiteKingPos = originalKingPos!;
       } else {
-        blackKingPos = origionalKingPos!;
+        blackKingPos = originalKingPos!;
       }
     }
     return !isKingInCheck;
@@ -440,6 +442,18 @@ class _ChessBoardState extends State<ChessBoard> {
       selectedRow = -1;
       validMoves = [];
     });
+
+    if (isCheckMate(!isWhiteTurn)) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Check Mate!'),
+          actions: [
+            TextButton(onPressed: resetGame, child: const Text('Play Again'))
+          ],
+        ),
+      );
+    }
   }
 
   /// check if king is in check
@@ -463,6 +477,43 @@ class _ChessBoardState extends State<ChessBoard> {
       }
     }
     return false;
+  }
+
+  /// checkMate
+  bool isCheckMate(bool isWhiteKing) {
+    /// king not in check
+    if (!kingInCheck(isWhiteKing)) {
+      return false;
+    }
+    // any moves available for any player
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        if (board[i][j] == null || board[i][j]!.isWhite != isWhiteKing) {
+          continue;
+        }
+        // calculate valid moves
+        List<List<int>> pieceValidMoves =
+            calculatePossibleMoves(i, j, board[i][j], true);
+        if (pieceValidMoves.isNotEmpty) {
+          return false;
+        }
+      }
+    }
+    // no moves left
+    return true;
+  }
+
+  /// reset game
+  void resetGame() {
+    Navigator.pop(context);
+    _initializeBoard();
+    checkStatus = false;
+    whitePiecesTaken.clear();
+    blackPiecesTaken.clear();
+    whiteKingPos = [7, 3];
+    blackKingPos = [0, 3];
+    isWhiteTurn = true;
+    setState(() {});
   }
 
   @override
