@@ -136,7 +136,7 @@ class _ChessBoardState extends State<ChessBoard> {
 
       /// calculate the valid moves
       validMoves =
-          calculateAllPossibleMoves(selectedRow, selectedCol, selectedPiece);
+          calculatePossibleMoves(selectedRow, selectedCol, selectedPiece, true);
     });
   }
 
@@ -343,6 +343,64 @@ class _ChessBoardState extends State<ChessBoard> {
     return candidateMoves;
   }
 
+  /// calculate available moves with king safety
+  List<List<int>> calculatePossibleMoves(
+      int row, int col, Piece? piece, bool checkSimulation) {
+    List<List<int>> actualMovesPossible = [];
+    List<List<int>> allPossibleMoves =
+        calculateAllPossibleMoves(row, col, piece);
+
+    if (checkSimulation) {
+      for (var move in allPossibleMoves) {
+        int endRow = move[0];
+        int endCol = move[1];
+        if (moveIsSafe(piece!, row, col, endRow, endCol)) {
+          actualMovesPossible.add(move);
+        }
+      }
+    } else {
+      actualMovesPossible = allPossibleMoves;
+    }
+    return actualMovesPossible;
+  }
+
+  /// check if move is safe
+  bool moveIsSafe(
+      Piece piece, int startRow, int startCol, int endRow, int endCol) {
+    Piece? curDestination = board[endRow][endCol];
+
+    List<int>? origionalKingPos;
+    if (piece.type == PieceType.king) {
+      origionalKingPos = piece.isWhite ? whiteKingPos : blackKingPos;
+
+      if (piece.isWhite) {
+        whiteKingPos = [endRow, endCol];
+      } else {
+        blackKingPos = [endRow, endCol];
+      }
+    }
+    // simulate the move
+    board[endRow][endCol] = piece;
+    board[startRow][startCol] = null;
+
+    // check if king is under attack
+    bool isKingInCheck = kingInCheck(piece.isWhite);
+
+    // restore board to original state
+    board[startRow][startCol] = piece;
+    board[endRow][endCol] = curDestination;
+
+    // restore king original pos
+    if (piece.type == PieceType.king) {
+      if (piece.isWhite) {
+        whiteKingPos = origionalKingPos!;
+      } else {
+        blackKingPos = origionalKingPos!;
+      }
+    }
+    return !isKingInCheck;
+  }
+
   /// move piece
   void movePiece(int newRow, int newCol) {
     // a piece taken down
@@ -396,7 +454,7 @@ class _ChessBoardState extends State<ChessBoard> {
         }
 
         List<List<int>> pieceValidMoves =
-            calculateAllPossibleMoves(r, c, board[r][c]);
+            calculatePossibleMoves(r, c, board[r][c], false);
         // check if king position is there in pieceValidMoves
         if (pieceValidMoves
             .any((move) => move[0] == kingPos[0] && move[1] == kingPos[1])) {
