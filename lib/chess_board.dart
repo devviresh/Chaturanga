@@ -1,5 +1,4 @@
-import 'dart:html';
-
+import 'package:chess/constants/app_colors.dart';
 import 'package:chess/widgets/box.dart';
 import 'package:chess/widgets/piece.dart';
 import 'package:flutter/material.dart';
@@ -448,6 +447,7 @@ class _ChessBoardState extends State<ChessBoard> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Check Mate!'),
+          content: Text("${isWhiteTurn ? "Black" : "White"} won the match."),
           actions: [
             TextButton(onPressed: resetGame, child: const Text('Play Again'))
           ],
@@ -519,7 +519,7 @@ class _ChessBoardState extends State<ChessBoard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.teal,
+        backgroundColor: background,
         body: Center(
           child: Row(
             children: [
@@ -539,38 +539,62 @@ class _ChessBoardState extends State<ChessBoard> {
               )),
 
               /// game status
-              Text(checkStatus ? 'Check!' : ""),
+              // Text(checkStatus ? 'Check!' : ""),
 
               /// chess Board
-              SizedBox(
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                        color: isWhiteTurn ? brown! : light!, width: 20),
+                    bottom: BorderSide(
+                        color: isWhiteTurn ? light! : brown!, width: 20),
+                    left: BorderSide(
+                        color: checkStatus ? red! : brown!, width: 20),
+                    right: BorderSide(
+                        color: checkStatus ? red! : brown!, width: 20),
+                  ),
+                  // boxShadow: [
+                  //   BoxShadow(
+                  //       color: checkStatus ? red! : Colors.transparent,
+                  //       spreadRadius: 5,
+                  //       blurRadius: 10)
+                  // ],
+                ),
                 width: MediaQuery.of(context).size.shortestSide,
-                child: GridView.builder(
-                  itemCount: 8 * 8,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 8),
-                  itemBuilder: (context, index) {
-                    int row = index ~/ 8;
-                    int col = index % 8;
+                child: Container(
+                  decoration: BoxDecoration(
+                      boxShadow: [BoxShadow(spreadRadius: -5, blurRadius: 10)]),
+                  child: GridView.builder(
+                    itemCount: 8 * 8,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 8),
+                    itemBuilder: (context, index) {
+                      int row = index ~/ 8;
+                      int col = index % 8;
 
-                    /// check if selected
-                    bool isSelected = selectedRow == row && selectedCol == col;
+                      /// check if selected
+                      bool isSelected =
+                          selectedRow == row && selectedCol == col;
 
-                    /// check if valid move
-                    bool isValidMove = false;
-                    for (var pos in validMoves) {
-                      if (pos[0] == row && pos[1] == col) {
-                        isValidMove = true;
+                      /// check if valid move
+                      bool isValidMove = false;
+                      for (var pos in validMoves) {
+                        if (pos[0] == row && pos[1] == col) {
+                          isValidMove = true;
+                        }
                       }
-                    }
-                    return Box(
-                      isWhite: isWhite(index),
-                      piece: board[row][col],
-                      isSelected: isSelected,
-                      onTap: () => pieceSelected(row, col),
-                      isValidMove: isValidMove,
-                    );
-                  },
+                      return Box(
+                        isWhite: isWhite(index),
+                        piece: board[row][col],
+                        isSelected: isSelected,
+                        onTap: () => pieceSelected(row, col),
+                        isValidMove: isValidMove,
+                      );
+                    },
+                  ),
                 ),
               ),
 

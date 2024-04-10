@@ -1,4 +1,4 @@
-import 'package:chess/constants/colors.dart';
+import 'package:chess/constants/app_colors.dart';
 import 'package:chess/widgets/piece.dart';
 import 'package:flutter/material.dart';
 
@@ -20,23 +20,37 @@ class Box extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color? boxColor;
-    if (isSelected || isValidMove) {
+    if (isSelected) {
       boxColor = Colors.green;
     } else if (isValidMove) {
-      boxColor = Colors.green[300];
-    } else {
-      boxColor = isWhite ? light : dark;
+      if (piece != null) {
+        boxColor = Colors.red;
+      } else {
+        boxColor = Colors.green;
+      }
     }
     return GestureDetector(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(width: isSelected ? 5 : 0),
+          border: Border.all(width: isSelected ? 2 : 0),
           color: isWhite ? light : dark,
         ),
         child: Container(
-          color: boxColor,
-          margin: EdgeInsets.all(isValidMove ? 8 : 0),
+          decoration: BoxDecoration(
+            boxShadow: boxColor != null
+                ? [
+                    BoxShadow(
+                      color: boxColor,
+                    ),
+                    BoxShadow(
+                      color: isWhite ? light! : dark!,
+                      spreadRadius: -12,
+                      blurRadius: 10,
+                    ),
+                  ]
+                : null,
+          ),
           child: piece != null
               ? Image.asset(piece!.imagePath,
                   color: piece!.isWhite ? Colors.white : Colors.black)
