@@ -518,10 +518,33 @@ class _ChessBoardState extends State<ChessBoard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: background,
-        body: Center(
-          child: Row(
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: SweepGradient(
+          colors: [
+            Colors.black54,
+            Colors.black45,
+            Colors.black87,
+            Colors.black54,
+            Colors.black45,
+            Colors.black87,
+            Colors.black54,
+            Colors.black45,
+            Colors.black87,
+            Colors.black54,
+            Colors.black45,
+            Colors.black87,
+            Colors.black54,
+          ],
+        ),
+      ),
+      child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Flex(
+            direction: MediaQuery.of(context).size.width >
+                    MediaQuery.of(context).size.height
+                ? Axis.horizontal
+                : Axis.vertical,
             children: [
               /// white pieces captured
               Expanded(
@@ -543,6 +566,8 @@ class _ChessBoardState extends State<ChessBoard> {
 
               /// chess Board
               Container(
+                width: MediaQuery.of(context).size.shortestSide,
+                height: MediaQuery.of(context).size.shortestSide,
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
@@ -561,9 +586,8 @@ class _ChessBoardState extends State<ChessBoard> {
                   //       blurRadius: 10)
                   // ],
                 ),
-                width: MediaQuery.of(context).size.shortestSide,
                 child: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       boxShadow: [BoxShadow(spreadRadius: -5, blurRadius: 10)]),
                   child: GridView.builder(
                     itemCount: 8 * 8,
@@ -601,6 +625,7 @@ class _ChessBoardState extends State<ChessBoard> {
               /// black pieces captured
               Expanded(
                   child: GridView.builder(
+                reverse: true,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 8,
                 ),
@@ -613,7 +638,7 @@ class _ChessBoardState extends State<ChessBoard> {
                 itemCount: blackPiecesTaken.length,
               )),
             ],
-          ),
-        ));
+          )),
+    );
   }
 }

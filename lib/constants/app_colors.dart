@@ -5,4 +5,4 @@ Color? dark = Colors.grey[700];
 Color? brown = Colors.brown;
 Color? red = const Color(0xFFFF0000);
 
-Color? background = Colors.cyan;
+Color? background = Colors.black87;

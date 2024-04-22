@@ -1,6 +1,6 @@
-# chess
+# ChaturAnga
 
-A new Flutter project.
+A Classic Chess game built with flutter.
 
 ## Getting Started
 
